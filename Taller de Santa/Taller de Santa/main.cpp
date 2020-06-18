@@ -1,10 +1,16 @@
+// omp_atomic.cpp
+// compile with: /openmp
+#include <stdio.h>
 #include <omp.h>
-#include <iostream>
 
+#define MAX 10
 
-
-int main(int argc, const char* argv[])
-{
-	std::cout << "Hello Santa" << std::endl;
-
+int main() {
+    int count = 0;
+#pragma omp parallel num_threads(MAX)
+    {
+#pragma omp atomic
+        count++;
+    }
+    printf_s("Number of threads: %d\n", count);
 }
