@@ -3,17 +3,31 @@
 #include <iostream>
 #include <fstream>
 
-#include <chrono>
-#include <thread> 
-//std::this_thread::sleep_for(std::chrono::seconds(10));
+#include <ctime>
+#include <random>
 
+//Generacion de numeros aleatorios
+double getRandom()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);
 
-/*
-#pragma omp critical LogUpdate
-			{
-				// critical section where you update file
-			}
-*/
+	return  dis(gen);
+}
+
+// al no usar semaforos es dificil utilizar a santa como thread, sin emargo se intentara hacer una version 2
+void santa(bool estado, int& duendes, bool& navidad) {
+	if (estado) {
+		printf_s("\nSanta sale a preparar el trineo\nFeliz Navidad!\n");
+		navidad = true;
+	}
+
+	else {
+		printf_s("\nSanta sale a ayudar un grupo de duendes\n");
+		duendes = 0;
+	}
+}
 
 
 int main() {
@@ -21,18 +35,18 @@ int main() {
 	int contador_renos = 0;
 	int contador_duendes = 0;
 	int total_duendes;
-	int iteraciones;
+	bool navidad = false;
+
+	double prob_reno = 0.2;
+	double prob_duende = 0.5;
 
 	//Locks
-	omp_lock_t santa_lock;
-	omp_lock_t reno_lock;
-	omp_lock_t duende_lock;
-	omp_init_lock(&santa_lock);
-	omp_init_lock(&reno_lock);
-	omp_init_lock(&duende_lock);
+	omp_lock_t oficina_lock;
+
+	omp_init_lock(&oficina_lock);
 
 	//Roles
-	enum Rol {Santa, Reno, Duende};
+	enum Rol { Santa, Reno, Reno_Descanso, Duende, Consulta };
 
 	//Estructura de roles
 	std::vector<Rol> roles;
@@ -44,14 +58,14 @@ int main() {
 
 	//Lectura de valores para iteraciones
 	std::cout << "Cuantos dias vas a iterar?" << std::endl;
-	std::cin >> iteraciones;
-	std::cout << std::endl;
-	
+
 	int c_threads = 10 + total_duendes;
 
+
+	//Rellenado de roles
 	roles.resize(c_threads);
 	roles[0] = Santa;
-	
+
 	for (int i = 1; i < 10; i++) {
 		roles[i] = Reno;
 	}
@@ -59,34 +73,52 @@ int main() {
 	for (int i = 10; i < c_threads; i++) {
 		roles[i] = Duende;
 	}
-	
-	#pragma omp parallel num_threads(c_threads)
-	{
-		int thread_id = omp_get_thread_num();
 
-		if (roles[thread_id] == Santa) {
-			printf_s("Santa\n");
-		}
 
-		else if (roles[thread_id] == Reno) {
-			omp_set_lock(&reno_lock);
+
+	//Simulacion de los tics
+	while(!navidad) {
+		printf_s("\nNuevo dia de simulacion\n");
+		#pragma omp parallel num_threads(c_threads)
+		{
+			int thread_id = omp_get_thread_num();
+
+			//Threads de renos
+			if (roles[thread_id] == Reno) {
+				if (getRandom() < prob_reno) {
+					#pragma omp critical (Renos)
+					{
+						contador_renos++;
+						printf_s("\nEl reno %d vuelve a la cabana\n", thread_id - 1);
+					}
+					if (contador_renos == 9) {
+						//Se llama la funcion de santa para controlar a los renos
+						santa(true, contador_duendes, navidad);
+					}
+					roles[thread_id] = Reno_Descanso;
+				}
+			}
 			
-			contador_renos++;
 
-			omp_unset_lock(&reno_lock);
+			//Thread del duende
+			if (roles[thread_id] == Duende) {
+				#pragma omp critical (Duendes)
+				{
+					//Se intenta que no lleguen duendes luego de navidad, pero a veces pasa
+					if (getRandom() < prob_duende && !navidad) {
+						contador_duendes++;
+						printf_s("\nEl duende %d de une a un grupo para ver a Santa\n", thread_id - 10);
+					}
+					if (contador_duendes == 3) {
+						//Se llaman los duendes para recibir ayuda
+						santa(false, contador_duendes, navidad);
+					}
+				}
+			}
 
-
-		}
-
-		else {
-			printf_s("Duende\n");
 		}
 	}
 
-	std::cout  
-
 	//Destruccion de locks
-	omp_destroy_lock(&santa_lock);
-	omp_destroy_lock(&reno_lock);
-	omp_destroy_lock(&duende_lock);
+	omp_destroy_lock(&oficina_lock);
 }
