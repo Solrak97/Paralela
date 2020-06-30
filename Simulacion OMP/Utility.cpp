@@ -31,3 +31,8 @@ int Utility::discrete_uniform_random(int a, int b)
 
 	return dist6(rng);
 }
+
+int Utility::index_transform(int x, int y, int n)
+{
+	return (x * n) + y;
+}

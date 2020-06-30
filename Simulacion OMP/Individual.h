@@ -1,26 +1,32 @@
 #include "Coordinate.h"
-
+#include "Utility.h"
 
 #pragma once
+enum Health {
+	healty, infected, deceased, immune
+};
+
 class Individual {
 public:
-	enum Health {
-		healty, infected, deceased, immune
-	};
-
-	Coordinate home;
-	Coordinate location;
-	int probability_of_survival;
+	Health status = healty;
+	double probability_of_recuperation;
 	int days_of_infection;
 	int days_of_immunity;
 	int velocity;
 	int radius;
+	Coordinate home;
+	Coordinate location;
 
+	//Constructor of the class Individual
 	Individual();
-	void constructor_old();
-	void constructor_young();
-	int infect();
-	int terinate_illness();
-	void move(int tmm);
+	Individual(bool age, double prj, double prm, int rmj, int rmm, int vmj, int vmm, Coordinate home);
 
+	//if the individual is healty, it will get infected and return 1, else he will return 0
+	int infect(int dmn, int dmx);
+
+	//if illnes days get to 0, will calculate if individuals get imunized or die
+	int terminate_illness();
+
+	//moves the individual in a radius, if the radius is 0, he'll move freely
+	void move(int tmm);
 };

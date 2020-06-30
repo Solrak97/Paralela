@@ -17,4 +17,7 @@ namespace Utility {
 	//Returns a random int in range [a,b]
 	int discrete_uniform_random(int a, int b);
 
+	//transforms a 2D index to a 1D index
+	int index_transform(int x, int y, int n);
+
 }

@@ -1,5 +1,12 @@
 #include "Coordinate.h"
 
+Coordinate::Coordinate()
+{
+	this->x = 0;
+	this->y = 0;
+}
+
+
 Coordinate::Coordinate(int x, int y)
 {
 	this->x = x;
@@ -22,6 +29,11 @@ Coordinate Coordinate :: operator * (int S)
 bool Coordinate :: operator < (Coordinate const& C2)
 {
 	return (this->x < C2.x) && (this->y < C2.y);
+}
+
+bool Coordinate :: operator >=(Coordinate const& C2)
+{
+	return (this->x >= C2.x) && (this->y >= C2.y);;
 }
 
 //Returns absolute value of Coord

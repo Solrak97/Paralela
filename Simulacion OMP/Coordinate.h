@@ -7,6 +7,8 @@ class Coordinate {
 	int x;
 	int y;
 
+public:
+	Coordinate();
 	Coordinate(int x, int y);
 
 	//Coord sum
@@ -17,6 +19,9 @@ class Coordinate {
 
 	//Is Coord C1 < Coord C2?
 	bool operator < (Coordinate const& C2);
+
+	//Is Coord C1 >= Coord C2?
+	bool operator >= (Coordinate const& C2);
 
 	//Returns aboslute value of coord
 	Coordinate abs();
