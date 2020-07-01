@@ -20,6 +20,7 @@ Individual::Individual(bool age, double prj, double prm, int rmj, int rmm, int v
 		this->velocity = vmj;
 		this->radius = rmj;
 	}
+
 	this->days_of_immunity = -1;
 	this->days_of_infection = -1;
 	this->home = home;
@@ -31,7 +32,7 @@ int Individual::infect(int dmn, int dmx)
 {
 	if(this->status == healty){
 		this->status = infected;
-		this->days_of_infection = Utility::discrete_uniform_random(dmn, dmx);
+		this->days_of_infection = rand() % (dmx - dmn) + dmn;//Utility::discrete_uniform_random(dmn, dmx);
 		return 1;
 	}
 	return 0;
@@ -46,7 +47,7 @@ void Individual::move(int tmm)
 {
 	Coordinate base = Coordinate();
 	Coordinate top = Coordinate(tmm, tmm);
-	int index = Utility::discrete_uniform_random(0, 8);
+	int index = rand() % 8;
 	int final_index = index + 8;
 	Coordinate direction[8] = { Coordinate(-1, 0), Coordinate(0, -1), Coordinate(1, 0), Coordinate(-1, 0), Coordinate(-1, -1),
 		Coordinate(1, -1), Coordinate(-1, 1), Coordinate(1, 1) };
