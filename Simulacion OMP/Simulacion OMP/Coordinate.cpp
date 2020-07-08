@@ -31,7 +31,7 @@ bool Coordinate :: operator < (Coordinate const& C2)
 	return (this->x < C2.x) && (this->y < C2.y);
 }
 
-bool Coordinate :: operator >=(Coordinate const& C2)
+bool Coordinate :: operator >= (Coordinate const& C2)
 {
 	return (this->x >= C2.x) && (this->y >= C2.y);;
 }
@@ -40,4 +40,10 @@ bool Coordinate :: operator >=(Coordinate const& C2)
 Coordinate Coordinate::abs()
 {
 	return Coordinate(this->x > 0 ? x : x * -1, this->y > 0 ? y : y * -1);
+}
+
+std::ostream& operator<<(std::ostream& os, const Coordinate& C)
+{
+	os << "(" << C.x << ", " << C.y << ")\n";
+	return os;
 }

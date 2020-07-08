@@ -1,0 +1,8 @@
+2 threads, 10k elementos
+Con simulacion y creacion:
+54.33s
+
+Sin simulacion, con creacion:
+45.94s
+
+Sin simulacion ni creacion:

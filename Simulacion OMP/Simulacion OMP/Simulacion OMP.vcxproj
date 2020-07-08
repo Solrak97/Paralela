@@ -143,14 +143,12 @@
   <ItemGroup>
     <ClInclude Include="Coordinate.h" />
     <ClInclude Include="Individual.h" />
-    <ClInclude Include="Simulation.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Coordinate.cpp" />
     <ClCompile Include="Individual.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

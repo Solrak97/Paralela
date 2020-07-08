@@ -1,13 +1,15 @@
+#include <iostream>
+
 #pragma once
 
 //as the code in the python version used a little bit of tricky math
 //We'll overload the operators to do so, thats why we needed a coord class
 
 class Coordinate {
+public:
 	int x;
 	int y;
 
-public:
 	Coordinate();
 	Coordinate(int x, int y);
 
@@ -25,4 +27,7 @@ public:
 
 	//Returns aboslute value of coord
 	Coordinate abs();
+
+	//Just for testing
+	friend std::ostream& operator << (std::ostream& os, const Coordinate& C);
 };

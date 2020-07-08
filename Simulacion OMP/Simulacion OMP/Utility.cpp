@@ -11,9 +11,3 @@ int Utility::get_max_threads()
 
 	return MAX_THREADS * CORES;
 }
-
-
-int Utility::index_transform(int x, int y, int n)
-{
-	return (x * n) + y;
-}

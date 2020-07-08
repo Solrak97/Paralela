@@ -1,0 +1,5 @@
+488s 2 thread, 1m personas
+
+734s 4 thread, 1m personas
+
+290  1 thread, 1m personas  

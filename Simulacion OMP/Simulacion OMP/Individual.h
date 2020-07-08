@@ -8,7 +8,7 @@ enum Health {
 
 class Individual {
 public:
-	Health status = healty;
+	Health status;
 	double probability_of_recuperation;
 	int days_of_infection;
 	int days_of_immunity;
@@ -25,7 +25,7 @@ public:
 	int infect(int dmn, int dmx);
 
 	//if illnes days get to 0, will calculate if individuals get imunized or die
-	int terminate_illness();
+	int calculate_illness(int number_infected, double piv, int doi, int dmn, int dmx);
 
 	//moves the individual in a radius, if the radius is 0, he'll move freely
 	void move(int tmm);
