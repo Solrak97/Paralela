@@ -5,4 +5,29 @@ Con simulacion y creacion:
 Sin simulacion, con creacion:
 45.94s
 
-Sin simulacion ni creacion:
+Sin simulacion ni creacion, usando matriz infectados:
+0.20s
+
+2 threads, 1M elementos
+Simulacion, usando matriz infectados:
+15.0s
+
+Using critical:
+22.411
+
+Using row lockers:
+15.7732
+
+Using row lockers full simulation:
+1236.72
+
+
+Tiempos finales
+
+1 thread: 68s
+
+2 thread: 80.1935
+
+3 thread: 
+
+4 thread:

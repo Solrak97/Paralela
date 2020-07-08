@@ -29,4 +29,10 @@ public:
 
 	//moves the individual in a radius, if the radius is 0, he'll move freely
 	void move(int tmm);
+
+
+
+	//Just for the lazyness
+	int x();
+	int y();
 };

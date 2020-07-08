@@ -3,6 +3,7 @@
 #include <string>
 
 
+
 #define PARAMS_C 13
 #define DAYS_OF_IMMUNITY 40
 
@@ -65,6 +66,7 @@ int main(int argc, char * argv[])
 	double threshold = cpr * 0.945;
 	int patient_zeros = 0;
 
+
 	#pragma omp parallel for num_threads(MAX_THREADS)
 	for (int i = 0; i < cpr; i++) {
 		bool infection = false;
@@ -106,53 +108,93 @@ int main(int argc, char * argv[])
 	}
 
 
-	//TIC Simulation
-	for (int day = 0; day < drc; day++) {
-		std::vector<std::vector<std::list<int>>> tic_pop_matrix = std::vector<std::vector<std::list<int>>>(tmm, std::vector<std::list<int>>(tmm));
-		std::vector<Individual> tic_population = population;
 
-		//Iterates on population vector
+	std::vector<std::vector<int>> tic_infected_matrix = std::vector<std::vector<int>>(tmm, std::vector<int>(tmm));
+	std::vector<omp_lock_t> row_locker = std::vector<omp_lock_t>(tmm);
+
+	#pragma omp parallel for num_threads(MAX_THREADS)
+	for (int i = 0; i < tmm; i++) {
+		omp_init_lock(&row_locker[i]);
+	}
+
+	
+	//TIC Simulation
+	#pragma parallel num_threads(MAX_THREADS)
+	for (int day = 0; day < drc; day++) {
+
+		//Infected cleanup     North Korea much?
+		#pragma omp parallel for collapse(2) num_threads(MAX_THREADS)
+		for (int i = 0; i < tmm; i++) {
+			for (int j = 0; j < tmm; j++) {
+				tic_infected_matrix[i][j] = 0;
+			}
+		}
+
+
+		//Infected count
+		//Probability of memory rewritte is very low, yet is better protected so im using a row locker
 		#pragma omp parallel for num_threads(MAX_THREADS)
 		for (int i = 0; i < cpr; i++) {
-			int infected_count = 0;
-			
-			std::list<int> list = pop_matrix[population[i].location.x][population[i].location.y];
-			for (auto it = list.begin(); it != list.end(); it++) {
-				if (population[*it].status == infected) infected_count++;
+			if (population[i].status == infected) {
+				omp_set_lock(&row_locker[population[i].x()]);
+				tic_infected_matrix[population[i].x()][population[i].y()]++;
+				omp_unset_lock(&row_locker[population[i].x()]);
 			}
+		}
 
-			int status = tic_population[i].calculate_illness(infected_count, piv, DAYS_OF_IMMUNITY, dmn, dmx); //To-do calcular el valor de retorno
-			tic_population[i].move(tmm);
 
-			#pragma omp critical
-			tic_pop_matrix[tic_population[i].location.x][tic_population[i].location.y].push_back(i);
+		//Makes calcualtions over population vector
+		#pragma omp parallel for num_threads(MAX_THREADS)
+		for (int i = 0; i < cpr; i++) {
+			//Status calculation
+			int status = population[i].calculate_illness(tic_infected_matrix[population[i].x()][population[i].y()], piv, DAYS_OF_IMMUNITY, dmn, dmx);
+
+
+			//Movement on matrix
+			omp_set_lock(&row_locker[population[i].x()]);
+			pop_matrix[population[i].x()][population[i].y()].remove(i);
+			omp_unset_lock(&row_locker[population[i].x()]);
 			
-			#pragma omp critical			
-			{
-				if (status != -1) {
-					switch (status)
-					{
-					case 0:
-						total_deceased++;
-						break;
+			population[i].move(tmm);
+			
+			omp_set_lock(&row_locker[population[i].x()]);
+			pop_matrix[population[i].x()][population[i].y()].push_back(i);
+			omp_unset_lock(&row_locker[population[i].x()]);
 
-					case 1:
-						total_immune++;
-						break;
 
-					case 2:
-						total_infected++;
-						break;
-					default:
-						break;
-					}
+			//Process stats
+			if (status != -1) {
+				switch (status)
+				{
+				case 0:
+					#pragma omp critical (deceased)
+					total_deceased++;
+					break;
+
+				case 1:
+					#pragma omp critical (immune)
+					total_immune++;
+					break;
+
+				case 2:
+					#pragma omp critical (infected)
+					total_infected++;
+					break;
+
+				default:
+					break;
 				}
 			}
 		}
-		pop_matrix = tic_pop_matrix;
-		population = tic_population;
 
+		//Data writting into buffer, as it is outside of the paralell region, it doesnt need guards		
 		DATA_BUFFER += std::to_string(total_deceased) + "," + std::to_string(total_infected) + "," + std::to_string(total_immune) + "\n";
+	}
+	
+
+	#pragma omp parallel for num_threads(MAX_THREADS)
+	for (int i = 0; i < tmm; i++) {
+		omp_destroy_lock(&row_locker[i]);
 	}
 
 	double final_time = omp_get_wtime();

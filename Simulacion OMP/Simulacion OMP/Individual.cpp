@@ -41,7 +41,6 @@ int Individual::infect(int dmn, int dmx)
 
 int Individual::calculate_illness(int number_infected, double piv, int doi, int dmn, int dmx)
 {
-
 	//returns - 1 if not necessary on calcs
 	//returns 0 if dies
 	//returns 1 if gets immunized
@@ -112,4 +111,14 @@ void Individual::move(int tmm)
 			}
 		}
 	}
+}
+
+int Individual::x()
+{
+	return this->location.x;
+}
+
+int Individual::y()
+{
+	return this->location.y;
 }
